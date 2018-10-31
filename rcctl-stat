@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ "$(whoami)" != "root" ]; then
+if [ "$(id -u)" -ne "0" ]; then
     echo "Please run as root"
     exit 1
 fi
@@ -8,62 +8,51 @@ fi
 rc_all=$(rcctl ls all)
 rc_enabled=$(rcctl ls on)
 rc_started=$(rcctl ls started)
-rc_forced=""
 
 list_started=""
 list_forced=""
 list_enabled=""
-list_off=""
 
 for started in $rc_started; do
-    flag=0
     for enabled in $rc_enabled; do
         if [ "$enabled" == "$started" ]; then
-            flag=1
-            break
+            list_started="$list_started $started"
+            continue 2
         fi
     done
-    if [ $flag -eq 0 ]; then
-        rc_forced="$rc_forced $started"
-    else
-        list_started="$list_started[+] $started\n"
-    fi
+    list_forced="$list_forced $started"
 done
 
 for enabled in $rc_enabled; do
-    flag=0
     for started in $rc_started; do
         if [ "$started" == "$enabled" ]; then
-            flag=1
-            break
+            continue 2
         fi
     done
-    if [ $flag -eq 0 ]; then
-        list_enabled="$list_enabled[-] $enabled\n"
-    fi
+    list_enabled="$list_enabled $enabled"
 done
 
 for service in $rc_all; do
-    flag=0
-    for enabled in $rc_enabled; do
+    for started in $list_started; do
+        if [ "$started" == "$service" ]; then
+            echo "[+] $service"
+            continue 2
+        fi
+    done
+
+    for enabled in $list_enabled; do
         if [ "$enabled" == "$service" ]; then
-            flag=1
-            break
+            echo "[-] $service"
+            continue 2
         fi
     done
-    for forced in $rc_forced; do
+
+    for forced in $list_forced; do
         if [ "$forced" == "$service" ]; then
-            flag=1
-            break
+            echo "[F] $service"
+            continue 2
         fi
     done
-    if [ $flag -eq 0 ]; then
-        list_off="$list_off[ ] $service\n"
-    fi
-done
 
-for forced in $rc_forced; do
-    list_forced="$list_forced[F] $forced\n"
+    echo "[ ] $service"
 done
-
-echo "$list_started$list_forced$list_enabled$list_off" | sed -e '$ d' | sort -t ']' -k 2
