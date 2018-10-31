@@ -43,4 +43,4 @@ for service in $rc_all; do
     fi
 done
 
-echo "$list_started$list_enabled$list_off" | sort -t ']' -k 2
+echo "$list_started$list_enabled$list_off" | sed -e '$ d' | sort -t ']' -k 2
