@@ -14,7 +14,7 @@ list_enabled=""
 list_off=""
 
 for started in $rc_started; do
-    list_started="$list_started [+] $started\n"
+    list_started="$list_started[+] $started\n"
 done
 
 for enabled in $rc_enabled; do
@@ -26,7 +26,7 @@ for enabled in $rc_enabled; do
         fi
     done
     if [ $flag -eq 0 ]; then
-        list_enabled="$list_enabled [-] $enabled\n"
+        list_enabled="$list_enabled[-] $enabled\n"
     fi
 done
 
@@ -39,7 +39,7 @@ for service in $rc_all; do
         fi
     done
     if [ $flag -eq 0 ]; then
-        list_off="$list_off [ ] $service\n"
+        list_off="$list_off[ ] $service\n"
     fi
 done
 
