@@ -8,13 +8,26 @@ fi
 rc_all=$(rcctl ls all)
 rc_enabled=$(rcctl ls on)
 rc_started=$(rcctl ls started)
+rc_forced=""
 
 list_started=""
+list_forced=""
 list_enabled=""
 list_off=""
 
 for started in $rc_started; do
-    list_started="$list_started[+] $started\n"
+    flag=0
+    for enabled in $rc_enabled; do
+        if [ "$enabled" == "$started" ]; then
+            flag=1
+            break
+        fi
+    done
+    if [ $flag -eq 0 ]; then
+        rc_forced="$rc_forced $started"
+    else
+        list_started="$list_started[+] $started\n"
+    fi
 done
 
 for enabled in $rc_enabled; do
@@ -38,9 +51,19 @@ for service in $rc_all; do
             break
         fi
     done
+    for forced in $rc_forced; do
+        if [ "$forced" == "$service" ]; then
+            flag=1
+            break
+        fi
+    done
     if [ $flag -eq 0 ]; then
         list_off="$list_off[ ] $service\n"
     fi
 done
 
-echo "$list_started$list_enabled$list_off" | sed -e '$ d' | sort -t ']' -k 2
+for forced in $rc_forced; do
+    list_forced="$list_forced[F] $forced\n"
+done
+
+echo "$list_started$list_forced$list_enabled$list_off" | sed -e '$ d' | sort -t ']' -k 2
