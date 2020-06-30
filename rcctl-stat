@@ -5,6 +5,18 @@ if [ "$(id -u)" -ne "0" ]; then
     exit 1
 fi
 
+nocolor="\033[0m"
+
+red="\033[0;31m"
+green="\033[0;32m"
+orange="\033[0;33m"
+cyan="\033[0;36m"
+
+color=""
+if [ -t 1 ]; then
+    color="true"
+fi
+
 rc_all=$(rcctl ls all)
 rc_enabled=$(rcctl ls on)
 rc_started=$(rcctl ls started)
@@ -45,28 +57,44 @@ done
 for service in $rc_all; do
     for forced in $list_forced; do
         if [ "$forced" == "$service" ]; then
-            echo "[F] $service"
+            if [ "$color" = "true" ]; then
+                echo "[${cyan}F${nocolor}] $service"
+            else
+                echo "[F] $service"
+            fi
             continue 2
         fi
     done
 
     for started in $list_started; do
         if [ "$started" == "$service" ]; then
-            echo "[+] $service"
+            if [ "$color" = "true" ]; then
+                echo "[${green}+${nocolor}] $service"
+            else
+                echo "[+] $service"
+            fi
             continue 2
         fi
     done
 
     for failed in $list_failed; do
         if [ "$failed" == "$service" ]; then
-            echo "[D] $service"
+            if [ "$color" = "true" ]; then
+                echo "[${red}D${nocolor}] $service"
+            else
+                echo "[D] $service"
+            fi
             continue 2
         fi
     done
 
     for enabled in $list_enabled; do
         if [ "$enabled" == "$service" ]; then
-            echo "[-] $service"
+            if [ "$color" = "true" ]; then
+                echo "[${orange}-${nocolor}] $service"
+            else
+                echo "[-] $service"
+            fi
             continue 2
         fi
     done
