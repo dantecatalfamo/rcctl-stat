@@ -13,6 +13,7 @@ rc_failed=$(rcctl ls failed)
 list_started=""
 list_forced=""
 list_enabled=""
+list_failed=""
 
 for started in $rc_started; do
     for enabled in $rc_enabled; do
@@ -30,6 +31,14 @@ for enabled in $rc_enabled; do
             continue 2
         fi
     done
+
+    for failed in $rc_failed; do
+        if [ "$failed" == "enabled" ]; then
+            list_failed="$list_failed $failed"
+            continue 2
+        fi
+    done
+
     list_enabled="$list_enabled $enabled"
 done
 
@@ -48,7 +57,7 @@ for service in $rc_all; do
         fi
     done
 
-    for failed in $rc_failed; do
+    for failed in $list_failed; do
         if [ "$failed" == "$service" ]; then
             echo "[D] $service"
             continue 2
