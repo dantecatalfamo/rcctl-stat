@@ -8,6 +8,7 @@ fi
 rc_all=$(rcctl ls all)
 rc_enabled=$(rcctl ls on)
 rc_started=$(rcctl ls started)
+rc_failed=$(rcctl ls failed)
 
 list_started=""
 list_forced=""
@@ -43,6 +44,13 @@ for service in $rc_all; do
     for started in $list_started; do
         if [ "$started" == "$service" ]; then
             echo "[+] $service"
+            continue 2
+        fi
+    done
+
+    for failed in $rc_failed; do
+        if [ "$failed" == "$service" ]; then
+            echo "[D] $service"
             continue 2
         fi
     done
