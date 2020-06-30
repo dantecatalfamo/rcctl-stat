@@ -33,7 +33,7 @@ for enabled in $rc_enabled; do
     done
 
     for failed in $rc_failed; do
-        if [ "$failed" == "enabled" ]; then
+        if [ "$failed" == "$enabled" ]; then
             list_failed="$list_failed $failed"
             continue 2
         fi
